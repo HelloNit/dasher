@@ -13,10 +13,17 @@ int main()
   Rectangle nebRec{0.0, 0.0, nebula.width / 8.0f, nebula.height / 8.0f};
   Vector2 nebPos{windowWidth, windowHeight - nebRec.height};
 
-  //animação da neblina
+  Rectangle neb2Rec{0.0, 0.0, nebula.width / 8.0f, nebula.height / 8.0f};
+  Vector2 neb2Pos{windowWidth + 300, windowHeight - nebRec.height};
+
+  // animação da neblina
   int nebFrame{};
   const float nebUpdateTime{1.0 / 12.0};
   float nebRunningTime{};
+
+  int neb2Frame{};
+  const float neb2UpdateTime{1.0 / 16.0};
+  float neb2RunningTime{};
 
   // velocidade da neblina
   int nebVel{-600};
@@ -33,7 +40,7 @@ int main()
 
   int frame{};
   const float updateTime{1.0 / 12.0};
-  float runningTime{0};
+  float runningTime{};
 
   // rect
   int velocity{0};
@@ -72,6 +79,9 @@ int main()
     // atualiza a posição da neblina e fé
     nebPos.x += nebVel * dT;
 
+    // atualiza a posição da neblina jr e fé
+    neb2Pos.x += nebVel * dT;
+
     // atualiza a posição do boneco
     scarfyPos.y += velocity * dT;
 
@@ -103,25 +113,42 @@ int main()
       }
     }
 
+    // atualiza o running time da neblina
     nebRunningTime += dT;
     if (nebRunningTime >= nebUpdateTime)
     {
       nebRunningTime = 0.0;
       nebRec.x = nebFrame * nebRec.width;
       nebFrame++;
-      if(nebFrame > 8)
+      if (nebFrame > 8)
       {
         nebFrame = 0;
+      }
+    }
+
+    // atualiza o running time da neblina jr
+    neb2RunningTime += dT;
+    if (neb2RunningTime >= neb2UpdateTime)
+    {
+      neb2RunningTime = 0.0;
+      neb2Rec.x = neb2Frame * neb2Rec.width;
+      neb2Frame++;
+      if (neb2Frame > 8)
+      {
+        neb2Frame = 0;
       }
     }
 
     // neblina
     DrawTextureRec(nebula, nebRec, nebPos, WHITE);
 
+    // neblina jr
+    DrawTextureRec(nebula, neb2Rec, neb2Pos, ORANGE);
+
     // personagem
     DrawTextureRec(scarfy, scarfyRec, scarfyPos, WHITE);
 
-    // final do código bosta
+    // final do código de bosta
     EndDrawing();
   }
   UnloadTexture(scarfy);
