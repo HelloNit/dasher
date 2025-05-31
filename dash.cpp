@@ -1,6 +1,15 @@
 #include <raylib.h>
 #include <iostream>
 
+struct AnimData
+{
+  Rectangle rec;
+  Vector2 pos;
+  int frame;
+  float updateTime;
+  float runningTime;
+};
+
 int main()
 {
   const int windowWidth{600};
@@ -29,6 +38,14 @@ int main()
   int nebVel{-600};
 
   Texture2D scarfy = LoadTexture("texture/scarfy.png");
+  AnimData scarfyData; 
+  scarfyData.rec.width = scarfy.width / 6;
+  scarfyData.rec.height = scarfy.height;
+  scarfyData.rec.x = 0;
+  scarfyData.rec.y = 0;
+  scarfyData.pos.x = windowWidth / 2 - scarfyData.rec.width / 2;
+  scarfyData.pos.y = windowHeight - scarfyData.rec.height;
+
   Rectangle scarfyRec;
   scarfyRec.width = scarfy.width / 6;
   scarfyRec.height = scarfy.height;
