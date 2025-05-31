@@ -45,6 +45,9 @@ int main()
   scarfyData.rec.y = 0;
   scarfyData.pos.x = windowWidth / 2 - scarfyData.rec.width / 2;
   scarfyData.pos.y = windowHeight - scarfyData.rec.height;
+  scarfyData.frame = 0;
+  scarfyData.updateTime = 1.0 / 12.0;
+  scarfyData.runningTime = 0.0;
 
   Rectangle scarfyRec;
   scarfyRec.width = scarfy.width / 6;
