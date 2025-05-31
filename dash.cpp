@@ -9,6 +9,18 @@ int main()
 
   const int gravity{1'000}; //(pixel / frame)
 
+  Texture2D nebula = LoadTexture("texture/12_nebula_spritesheet.png");
+  Rectangle nebRec{0.0, 0.0, nebula.width / 8.0f, nebula.height / 8.0f};
+  Vector2 nebPos{windowWidth, windowHeight - nebRec.height};
+
+  //animação da neblina
+  int nebFrame{};
+  const float nebUpdateTime{1.0 / 12.0};
+  float nebRunningTime{};
+
+  // velocidade da neblina
+  int nebVel{-600};
+
   Texture2D scarfy = LoadTexture("texture/scarfy.png");
   Rectangle scarfyRec;
   scarfyRec.width = scarfy.width / 6;
@@ -57,28 +69,62 @@ int main()
       velocity += jumpVel;
     }
 
-    // atualizar essa porra por frame
+    // atualiza a posição da neblina e fé
+    nebPos.x += nebVel * dT;
+
+    // atualiza a posição do boneco
     scarfyPos.y += velocity * dT;
 
+    if (isInAir == false)
+    {
+      runningTime += dT;
+      if (runningTime >= updateTime)
+      {
+        runningTime = 0;
+        scarfyRec.x = frame * scarfyRec.width;
+        frame++;
+        if (frame > 24)
+        {
+          frame = 0;
+        }
+      }
+    }
+
+    // atualiza o running time
     runningTime += dT;
     if (runningTime >= updateTime)
     {
       runningTime = 0;
       scarfyRec.x = frame * scarfyRec.width;
       frame++;
-      if (frame > 5)
+      if (frame > 24)
       {
         frame = 0;
       }
     }
 
-    // Update Frame
+    nebRunningTime += dT;
+    if (nebRunningTime >= nebUpdateTime)
+    {
+      nebRunningTime = 0.0;
+      nebRec.x = nebFrame * nebRec.width;
+      nebFrame++;
+      if(nebFrame > 8)
+      {
+        nebFrame = 0;
+      }
+    }
 
+    // neblina
+    DrawTextureRec(nebula, nebRec, nebPos, WHITE);
+
+    // personagem
     DrawTextureRec(scarfy, scarfyRec, scarfyPos, WHITE);
 
     // final do código bosta
     EndDrawing();
   }
   UnloadTexture(scarfy);
+  UnloadTexture(nebula);
   CloseWindow();
 }
