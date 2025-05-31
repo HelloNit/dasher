@@ -16,71 +16,61 @@ int main()
   const int windowHeight{480};
   InitWindow(windowWidth, windowHeight, "dash game");
 
-  const int gravity{1'000}; //(pixel / frame)
+  const int gravity{1'000}; //(pixels por segundo)
 
   Texture2D nebula = LoadTexture("texture/12_nebula_spritesheet.png");
-  Rectangle nebRec{0.0, 0.0, nebula.width / 8.0f, nebula.height / 8.0f};
-  Vector2 nebPos{windowWidth, windowHeight - nebRec.height};
 
-  Rectangle neb2Rec{0.0, 0.0, nebula.width / 8.0f, nebula.height / 8.0f};
-  Vector2 neb2Pos{windowWidth + 300, windowHeight - nebRec.height};
+  // neblina principal
+  AnimData nebData{
+      {0.0f, 0.0f, nebula.width / 8.0f, nebula.height / 8.0f},
+      {windowWidth, windowHeight - nebula.height / 8.0f},
+      0,
+      1.0f / 12.0f,
+      0.0f};
 
-  // animação da neblina
-  int nebFrame{};
-  const float nebUpdateTime{1.0 / 12.0};
-  float nebRunningTime{};
-
-  int neb2Frame{};
-  const float neb2UpdateTime{1.0 / 16.0};
-  float neb2RunningTime{};
+  // neblina secundária
+  AnimData neb2Data{
+      {0.0f, 0.0f, nebula.width / 8.0f, nebula.height / 8.0f},
+      {windowWidth + 300, windowHeight - nebula.height / 8.0f},
+      0,
+      1.0f / 16.0f,
+      0.0f};
 
   // velocidade da neblina
   int nebVel{-600};
 
   Texture2D scarfy = LoadTexture("texture/scarfy.png");
-  AnimData scarfyData; 
-  scarfyData.rec.width = scarfy.width / 6;
+
+  // personagem principal
+  AnimData scarfyData;
+  scarfyData.rec.width = scarfy.width / 6.0f;
   scarfyData.rec.height = scarfy.height;
-  scarfyData.rec.x = 0;
-  scarfyData.rec.y = 0;
-  scarfyData.pos.x = windowWidth / 2 - scarfyData.rec.width / 2;
+  scarfyData.rec.x = 0.0f;
+  scarfyData.rec.y = 0.0f;
+  scarfyData.pos.x = windowWidth / 2.0f - scarfyData.rec.width / 2.0f;
   scarfyData.pos.y = windowHeight - scarfyData.rec.height;
   scarfyData.frame = 0;
-  scarfyData.updateTime = 1.0 / 12.0;
-  scarfyData.runningTime = 0.0;
+  scarfyData.updateTime = 1.0f / 12.0f;
+  scarfyData.runningTime = 0.0f;
 
-  Rectangle scarfyRec;
-  scarfyRec.width = scarfy.width / 6;
-  scarfyRec.height = scarfy.height;
-  scarfyRec.x = 0;
-  scarfyRec.y = 0;
-  Vector2 scarfyPos;
-  scarfyPos.x = windowWidth / 2 - scarfyRec.width / 2;
-  scarfyPos.y = windowHeight - scarfy.height;
-
-  int frame{};
-  const float updateTime{1.0 / 12.0};
-  float runningTime{};
-
-  // rect
   int velocity{0};
+  bool isInAir = false;
 
-  bool isInAir;
-  // velocidade do pulo (pixel por segundos)
   const int jumpVel{-600};
 
   SetTargetFPS(60);
+
   while (!WindowShouldClose())
   {
-    // delta time
-    const float dT{GetFrameTime()};
-
+    // inica o desenho
     BeginDrawing();
     ClearBackground(WHITE);
 
-    // logica de makako
+    // delta time
+    const float dT{GetFrameTime()};
 
-    if (scarfyPos.y >= windowHeight - scarfyRec.height)
+    // lógica de física
+    if (scarfyData.pos.y >= windowHeight - scarfyData.rec.height)
     {
       velocity = 0;
       isInAir = false;
@@ -96,79 +86,60 @@ int main()
       velocity += jumpVel;
     }
 
-    // atualiza a posição da neblina e fé
-    nebPos.x += nebVel * dT;
+    // atualiza posições
+    scarfyData.pos.y += velocity * dT;
+    nebData.pos.x += nebVel * dT;
+    neb2Data.pos.x += nebVel * dT;
 
-    // atualiza a posição da neblina jr e fé
-    neb2Pos.x += nebVel * dT;
-
-    // atualiza a posição do boneco
-    scarfyPos.y += velocity * dT;
-
-    if (isInAir == false)
+    // atualiza animação do personagem
+    if (!isInAir)
     {
-      runningTime += dT;
-      if (runningTime >= updateTime)
+      scarfyData.runningTime += dT;
+      if (scarfyData.runningTime >= scarfyData.updateTime)
       {
-        runningTime = 0;
-        scarfyRec.x = frame * scarfyRec.width;
-        frame++;
-        if (frame > 24)
+        scarfyData.runningTime = 0;
+        scarfyData.rec.x = scarfyData.frame * scarfyData.rec.width;
+        scarfyData.frame++;
+        if (scarfyData.frame > 5)
         {
-          frame = 0;
+          scarfyData.frame = 0;
         }
       }
     }
 
-    // atualiza o running time
-    runningTime += dT;
-    if (runningTime >= updateTime)
+    // atualiza animação da neblina 1
+    nebData.runningTime += dT;
+    if (nebData.runningTime >= nebData.updateTime)
     {
-      runningTime = 0;
-      scarfyRec.x = frame * scarfyRec.width;
-      frame++;
-      if (frame > 24)
+      nebData.runningTime = 0;
+      nebData.rec.x = nebData.frame * nebData.rec.width;
+      nebData.frame++;
+      if (nebData.frame > 7)
       {
-        frame = 0;
+        nebData.frame = 0;
       }
     }
 
-    // atualiza o running time da neblina
-    nebRunningTime += dT;
-    if (nebRunningTime >= nebUpdateTime)
+    // atualiza animação da neblina 2
+    neb2Data.runningTime += dT;
+    if (neb2Data.runningTime >= neb2Data.updateTime)
     {
-      nebRunningTime = 0.0;
-      nebRec.x = nebFrame * nebRec.width;
-      nebFrame++;
-      if (nebFrame > 8)
+      neb2Data.runningTime = 0;
+      neb2Data.rec.x = neb2Data.frame * neb2Data.rec.width;
+      neb2Data.frame++;
+      if (neb2Data.frame > 7)
       {
-        nebFrame = 0;
+        neb2Data.frame = 0;
       }
     }
 
-    // atualiza o running time da neblina jr
-    neb2RunningTime += dT;
-    if (neb2RunningTime >= neb2UpdateTime)
-    {
-      neb2RunningTime = 0.0;
-      neb2Rec.x = neb2Frame * neb2Rec.width;
-      neb2Frame++;
-      if (neb2Frame > 8)
-      {
-        neb2Frame = 0;
-      }
-    }
+    //neblina
+    DrawTextureRec(nebula, nebData.rec, nebData.pos, WHITE);
+    DrawTextureRec(nebula, neb2Data.rec, neb2Data.pos, ORANGE);
 
-    // neblina
-    DrawTextureRec(nebula, nebRec, nebPos, WHITE);
+    //personagem
+    DrawTextureRec(scarfy, scarfyData.rec, scarfyData.pos, WHITE);
 
-    // neblina jr
-    DrawTextureRec(nebula, neb2Rec, neb2Pos, ORANGE);
-
-    // personagem
-    DrawTextureRec(scarfy, scarfyRec, scarfyPos, WHITE);
-
-    // final do código de bosta
     EndDrawing();
   }
   UnloadTexture(scarfy);
